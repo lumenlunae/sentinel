@@ -194,6 +194,6 @@ defmodule Sentinel.Config do
   end
 
   def layout do
-    Application.get_env(:sentinel, :layout, :app)
+    Application.get_env(:sentinel, :layout, "app.html")
   end
 end

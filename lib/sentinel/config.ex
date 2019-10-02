@@ -195,7 +195,7 @@ defmodule Sentinel.Config do
   Wrapper for getting the application config of :layout
   """
   def layout do
-    Application.get_env(:sentinel, :layout, :app)
+    Application.get_env(:sentinel, :layout, "app.html")
   end
 
   @doc """

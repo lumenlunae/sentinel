@@ -8,13 +8,13 @@ defmodule Sentinel.Session do
   alias Sentinel.Session
 
   schema "virtual_session_table" do
-    field :username, :string
-    field :email, :string
-    field :password, :string
+    field(:username, :string)
+    field(:email, :string)
+    field(:password, :string)
   end
 
-  @required_fields ~w(password)
-  @optional_fields ~w(username email)
+  @required_fields ~w(password)a
+  @optional_fields ~w(username email)a
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -25,7 +25,7 @@ defmodule Sentinel.Session do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields ++ @optional_fields)
-    |> Session.email_or_username_required
+    |> Session.email_or_username_required()
   end
 
   @doc """
@@ -34,10 +34,14 @@ defmodule Sentinel.Session do
   """
   def email_or_username_required(changeset) do
     case fetch_change(changeset, :email) do
-      {:ok, _email} -> changeset
+      {:ok, _email} ->
+        changeset
+
       :error ->
         case fetch_change(changeset, :username) do
-          {:ok, _username} -> changeset
+          {:ok, _username} ->
+            changeset
+
           :error ->
             changeset
             |> add_error(:username, "Username or email address required")

@@ -10,16 +10,18 @@ defmodule ConfirmatorTest do
       Factory.build(:user)
       |> Ecto.Changeset.cast(%{}, [])
       |> Confirmator.confirmation_needed_changeset()
+
     hashed_confirmation_token = Ecto.Changeset.get_change(user, :hashed_confirmation_token)
 
-    assert Config.crypto_provider.checkpw(token, hashed_confirmation_token)
+    assert Config.crypto_provider().checkpw(token, hashed_confirmation_token)
   end
 
   test "confirmation_changeset adds an error if the token does not match" do
     {_token, user} =
       Factory.build(:user, hashed_confirmation_token: "123secret")
       |> Ecto.Changeset.cast(%{}, [])
-      |> Confirmator.confirmation_needed_changeset
+      |> Confirmator.confirmation_needed_changeset()
+
     user = Ecto.Changeset.apply_changes(user)
 
     changeset = Confirmator.confirmation_changeset(user, %{"confirmation_token" => "wrong"})
@@ -29,12 +31,14 @@ defmodule ConfirmatorTest do
   end
 
   test "confirmation_changeset clears the saved token and sets confirmed at if the token matches" do
-    mocked_date = Ecto.DateTime.utc
-    with_mock Ecto.DateTime, [:passthrough], [utc: fn -> mocked_date end] do
+    mocked_date = DateTime.truncate(DateTime.utc_now(), :second)
+
+    with_mock DateTime, [:passthrough], utc_now: fn -> mocked_date end do
       {token, user} =
         Factory.build(:user, hashed_confirmation_token: "123secret")
         |> Ecto.Changeset.cast(%{}, [])
-        |> Confirmator.confirmation_needed_changeset
+        |> Confirmator.confirmation_needed_changeset()
+
       user = Ecto.Changeset.apply_changes(user)
 
       changeset = Confirmator.confirmation_changeset(user, %{"confirmation_token" => token})

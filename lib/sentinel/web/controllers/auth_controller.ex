@@ -9,12 +9,8 @@ defmodule Sentinel.Controllers.AuthController do
   alias Sentinel.Controllers.Html
   alias Sentinel.Controllers.Json
 
-  plug Ueberauth
-  plug :put_layout, {Config.layout_view, Config.layout}
-  plug Guardian.Plug.VerifySession when action in [:delete]
-  plug Guardian.Plug.VerifyHeader when action in [:delete]
-  plug Guardian.Plug.EnsureAuthenticated, %{handler: Sentinel.Config.auth_handler} when action in [:delete]
-  plug Guardian.Plug.LoadResource when action in [:delete]
+  plug(Ueberauth)
+  plug(:put_layout, {Config.layout_view(), Config.layout()})
 
   def new(conn, params) do
     if conn.private.phoenix_format == "json" do

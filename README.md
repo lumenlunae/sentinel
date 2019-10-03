@@ -59,19 +59,19 @@ config :guardian, Guardian,
   verify_issuer: true, # optional
   secret_key: "guardian_sekret",
   serializer: Sentinel.GuardianSerializer,
-  hooks: GuardianDb # optional if using guardiandb
+  hooks: Guardian.DB # optional if using Guardian.DB
 ```
 
 [More info](https://github.com/ueberauth/guardian#installation)
 
-#### Optionally Configure GuardianDb
+#### Optionally Configure Guardian.DB
 ``` elixir
-config :guardian_db, GuardianDb,
+config :guardian, Guardian.DB,
   repo: MyApp.Repo
 ```
 
 The install task which ships with Sentinel, which you will run later in
-this walkthrough, creates the migration for the GuardianDb tokens.
+this walkthrough, creates the migration for the Guardian.DB tokens.
 
 ### Configure Sentinel
 ``` elixir

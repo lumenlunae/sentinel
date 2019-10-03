@@ -17,6 +17,6 @@ defmodule Sentinel.GuardianSerializer do
   @doc """
   Serializes use from a token
   """
-  def from_token("User:" <> id), do: {:ok, Config.repo.get(UserHelper.model, id)}
+  def from_token(%{"sub" => "User:" <> id}), do: {:ok, Config.repo().get(UserHelper.model(), id)}
   def from_token(_), do: {:error, "Unknown resource type"}
 end

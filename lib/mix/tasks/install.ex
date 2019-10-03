@@ -7,10 +7,10 @@ defmodule Mix.Tasks.Sentinel.Install do
   use Mix.Task
 
   def run(_) do
-    IO.puts "Creating migrations"
+    IO.puts("Creating migrations")
     create_migrations()
 
-    IO.puts "You should go in and ensure your application is configured correctly"
+    IO.puts("You should go in and ensure your application is configured correctly")
   end
 
   defp create_migrations do
@@ -18,19 +18,22 @@ defmodule Mix.Tasks.Sentinel.Install do
       migrations = Path.wildcard("priv/repo/migrations/*.exs")
 
       migrations
-      |> Enum.find(fn(migration) ->
+      |> Enum.find(fn migration ->
         String.contains?(migration, "create_user")
-      end) |> create_user_migration()
+      end)
+      |> create_user_migration()
 
       migrations
-      |> Enum.find(fn(migration) ->
+      |> Enum.find(fn migration ->
         String.contains?(migration, "guardian")
-      end) |> create_guardian_token_migration()
+      end)
+      |> create_guardian_token_migration()
 
       migrations
-      |> Enum.find(fn(migration) ->
+      |> Enum.find(fn migration ->
         String.contains?(migration, "ueberauth")
-      end) |> create_ueberauth_migration()
+      end)
+      |> create_ueberauth_migration()
     else
       create_user_migration()
       create_guardian_token_migration()
@@ -41,15 +44,17 @@ defmodule Mix.Tasks.Sentinel.Install do
   defp create_user_migration do
     generate_user_migration()
   end
+
   defp create_user_migration(nil) do
     generate_user_migration()
   end
+
   defp create_user_migration(_) do
-    IO.puts "A user creation migration appears to already exist"
+    IO.puts("A user creation migration appears to already exist")
   end
 
   defp generate_user_migration do
-    Mix.Tasks.Phoenix.Gen.Model.run([
+    Mix.Tasks.Phx.Gen.Schema.run([
       "User",
       "users",
       "email:string",
@@ -57,20 +62,21 @@ defmodule Mix.Tasks.Sentinel.Install do
       "confirmed_at:datetime",
       "unconfirmed_email:string"
     ])
+
     Process.sleep(1001)
 
     user_path = "web/models/user.ex"
 
     old_content =
       user_path
-      |> File.stream!
-      |> Enum.map(fn(line) -> line end)
+      |> File.stream!()
+      |> Enum.map(fn line -> line end)
       |> Enum.slice(0..17)
 
     new_content =
       "deps/sentinel/lib/mix/templates/user_template.ex"
-      |> File.stream!
-      |> Enum.map(fn(line) -> line end)
+      |> File.stream!()
+      |> Enum.map(fn line -> line end)
       |> Enum.slice(18..100)
 
     user_path
@@ -80,11 +86,13 @@ defmodule Mix.Tasks.Sentinel.Install do
   defp create_guardian_token_migration do
     generate_token_migration()
   end
+
   defp create_guardian_token_migration(nil) do
     generate_token_migration()
   end
+
   defp create_guardian_token_migration(_migration) do
-    IO.puts "A guardian token migration appears to already exist"
+    IO.puts("A guardian token migration appears to already exist")
   end
 
   defp generate_token_migration do
@@ -94,21 +102,21 @@ defmodule Mix.Tasks.Sentinel.Install do
 
     migration_path =
       "priv/repo/migrations/*.exs"
-      |> Path.wildcard
-      |> Enum.find(fn(migration) ->
+      |> Path.wildcard()
+      |> Enum.find(fn migration ->
         String.contains?(migration, "guardian")
       end)
 
     migration_content =
       migration_path
-      |> File.stream!
-      |> Enum.map(fn(line) -> line end)
+      |> File.stream!()
+      |> Enum.map(fn line -> line end)
       |> Enum.slice(0..2)
 
     new_content =
       "deps/sentinel/lib/mix/templates/guardian_db_migration_template.ex"
-      |> File.stream!
-      |> Enum.map(fn(line) -> line end)
+      |> File.stream!()
+      |> Enum.map(fn line -> line end)
       |> Enum.slice(3..100)
 
     migration_path
@@ -118,11 +126,13 @@ defmodule Mix.Tasks.Sentinel.Install do
   defp create_ueberauth_migration do
     generate_ueberauth()
   end
+
   defp create_ueberauth_migration(nil) do
     generate_ueberauth()
   end
+
   defp create_ueberauth_migration(_migration) do
-    IO.puts "An ueberuath migration appears to already exist"
+    IO.puts("An ueberuath migration appears to already exist")
   end
 
   defp generate_ueberauth do
@@ -132,21 +142,21 @@ defmodule Mix.Tasks.Sentinel.Install do
 
     migration_path =
       "priv/repo/migrations/*.exs"
-      |> Path.wildcard
-      |> Enum.find(fn(migration) ->
+      |> Path.wildcard()
+      |> Enum.find(fn migration ->
         String.contains?(migration, "ueberauth")
       end)
 
     migration_content =
       migration_path
-      |> File.stream!
-      |> Enum.map(fn(line) -> line end)
+      |> File.stream!()
+      |> Enum.map(fn line -> line end)
       |> Enum.slice(0..2)
 
     new_content =
       "deps/sentinel/lib/mix/templates/ueberauth_migration_template.ex"
-      |> File.stream!
-      |> Enum.map(fn(line) -> line end)
+      |> File.stream!()
+      |> Enum.map(fn line -> line end)
       |> Enum.slice(3..100)
 
     migration_path

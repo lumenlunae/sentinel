@@ -4,9 +4,9 @@ defmodule RegistratorTest do
   alias Sentinel.Changeset.Registrator
 
   setup do
-    on_exit fn ->
-      Application.delete_env :sentinel, :user_model_validator
-    end
+    on_exit(fn ->
+      Application.delete_env(:sentinel, :user_model_validator)
+    end)
   end
 
   @valid_params %{"email" => "unique@example.com"}
@@ -25,10 +25,12 @@ defmodule RegistratorTest do
 
   test "changeset validates uniqueness of email" do
     user = Factory.insert(:user)
-    {:error, changeset} = Registrator.changeset(%{@valid_params | "email" => user.email})
-                          |> TestRepo.insert
 
-    assert changeset.errors[:email] == {"has already been taken", []}
+    {:error, changeset} =
+      Registrator.changeset(%{@valid_params | "email" => user.email})
+      |> TestRepo.insert()
+
+    {"has already been taken", _} = changeset.errors[:email]
   end
 
   test "changeset downcases email" do
@@ -38,9 +40,10 @@ defmodule RegistratorTest do
   end
 
   test "changeset runs user_model_validator from config" do
-    Application.put_env(:sentinel, :user_model_validator, fn (changeset, %{}) ->
+    Application.put_env(:sentinel, :user_model_validator, fn changeset, %{} ->
       Ecto.Changeset.add_error(changeset, :email, "custom_error")
     end)
+
     changeset = Registrator.changeset(@valid_params)
 
     assert !changeset.valid?
@@ -48,7 +51,11 @@ defmodule RegistratorTest do
   end
 
   test "changeset runs with a custom user_model_validator module function" do
-    Application.put_env(:sentinel, :user_model_validator, {Sentinel.TestValidator, :custom_changeset})
+    Application.put_env(
+      :sentinel,
+      :user_model_validator,
+      {Sentinel.TestValidator, :custom_changeset}
+    )
 
     changeset = Registrator.changeset(@valid_params)
 

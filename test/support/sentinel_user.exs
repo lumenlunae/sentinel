@@ -3,12 +3,12 @@ defmodule Sentinel.User do
   import Ecto.Changeset
 
   schema "users" do
-    field  :email,                       :string
-    field  :role,                        :string
-    field  :hashed_confirmation_token,   :string
-    field  :confirmed_at,                Ecto.DateTime
-    field  :unconfirmed_email,           :string
-    field  :my_attr,                     :string, virtual: true
+    field(:email, :string)
+    field(:role, :string)
+    field(:hashed_confirmation_token, :string)
+    field(:confirmed_at, :utc_datetime)
+    field(:unconfirmed_email, :string)
+    field(:my_attr, :string, virtual: true)
   end
 
   @required_fields [:email]
@@ -28,6 +28,7 @@ defmodule Sentinel.User do
 
   defp downcase_email(changeset) do
     email = get_change(changeset, :email)
+
     if is_nil(email) do
       changeset
     else

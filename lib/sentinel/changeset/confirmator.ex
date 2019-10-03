@@ -1,6 +1,5 @@
 defmodule Sentinel.Changeset.Confirmator do
   alias Ecto.Changeset
-  alias Ecto.DateTime
   alias Sentinel.Config
 
   @moduledoc """
@@ -27,7 +26,7 @@ defmodule Sentinel.Changeset.Confirmator do
   # Returns {token, hashed_token}.
   defp generate_token do
     token = SecureRandom.urlsafe_base64(64)
-    {token, Config.crypto_provider.hashpwsalt(token)}
+    {token, Config.crypto_provider().hashpwsalt(token)}
   end
 
   @doc """
@@ -41,19 +40,24 @@ defmodule Sentinel.Changeset.Confirmator do
     |> successfully_confirm
     |> validate_token
   end
-  def confirmation_changeset(user = %{unconfirmed_email: unconfirmed_email}, params) when unconfirmed_email != nil do
+
+  def confirmation_changeset(user = %{unconfirmed_email: unconfirmed_email}, params)
+      when unconfirmed_email != nil do
     user
     |> Changeset.cast(params, [])
     |> successfully_confirm
     |> Changeset.put_change(:email, unconfirmed_email)
     |> validate_token
   end
-  def confirmation_changeset(changeset = %{data: %{unconfirmed_email: unconfirmed_email}}) when unconfirmed_email != nil and unconfirmed_email != "" do
+
+  def confirmation_changeset(changeset = %{data: %{unconfirmed_email: unconfirmed_email}})
+      when unconfirmed_email != nil and unconfirmed_email != "" do
     changeset
     |> Changeset.put_change(:email, unconfirmed_email)
     |> validate_token
     |> successfully_confirm
   end
+
   def confirmation_changeset(password_reset_changeset = %{data: %{confirmed_at: nil}}) do
     password_reset_changeset
     |> validate_token
@@ -64,16 +68,21 @@ defmodule Sentinel.Changeset.Confirmator do
     changeset
     |> Changeset.put_change(:unconfirmed_email, nil)
     |> Changeset.put_change(:hashed_confirmation_token, nil)
-    |> Changeset.put_change(:confirmed_at, DateTime.utc)
+    |> Changeset.put_change(:confirmed_at, DateTime.truncate(DateTime.utc_now(), :second))
   end
 
   defp validate_token(changeset) do
-    token_matches = Config.crypto_provider.checkpw(changeset.params["confirmation_token"],
-    changeset.data.hashed_confirmation_token)
-    do_validate_token token_matches, changeset
+    token_matches =
+      Config.crypto_provider().checkpw(
+        changeset.params["confirmation_token"],
+        changeset.data.hashed_confirmation_token
+      )
+
+    do_validate_token(token_matches, changeset)
   end
 
   defp do_validate_token(true, changeset), do: changeset
+
   defp do_validate_token(false, changeset) do
     Changeset.add_error(changeset, :confirmation_token, "invalid")
   end

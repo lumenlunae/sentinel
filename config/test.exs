@@ -1,6 +1,7 @@
 use Mix.Config
 
 config :logger, level: :warn
+
 config :sentinel, Sentinel.Endpoint,
   secret_key_base: "DOInS/rFmVWzmcHaoYAXX8moniIGldPCvtGcYv+GY5XE5xS8aQKRH4Aw6gDUmncd"
 
@@ -14,49 +15,67 @@ config :sentinel, Sentinel.TestRepo,
   max_overflow: 0,
   priv: "test/support"
 
-config :guardian, Guardian,
+config :sentinel, Sentinel.Guardian,
   issuer: "Sentinel",
   secret_key: "guardian_sekret",
-  allowed_algos: ["HS512"], # optional
-  verify_module: Guardian.JWT,  # optional
-  ttl: { 30, :days },
-  verify_issuer: true, # optional
+  # optional
+  allowed_algos: ["HS512"],
+  # optional
+  verify_module: Guardian.JWT,
+  ttl: {30, :days},
+  # optional
+  verify_issuer: true,
   serializer: Sentinel.GuardianSerializer,
-  hooks: GuardianDb, # optional - only needed if using guardian db
-  permissions: Application.get_env(:sentinel, :permissions)
+  # optional - only needed if using guardian db
+  hooks: Guardian.DB,
+  permissions: %{}
 
 # Only relevant to test ^^
 
 config :sentinel,
   app_name: "Test App",
-  user_model: Sentinel.User, #FIXME should be your generated model
+  # FIXME should be your generated model
+  user_model: Sentinel.User,
   send_address: "test@example.com",
   crypto_provider: Comeonin.Bcrypt,
-  repo: Sentinel.TestRepo, #FIXME should be your repo
+  # FIXME should be your repo
+  repo: Sentinel.TestRepo,
   ecto_repos: [Sentinel.TestRepo],
   auth_handler: Sentinel.AuthHandler,
   views: %{
-    email: Sentinel.EmailView, # your email view (optional)
-    error: Sentinel.ErrorView, # your error view (optional)
-    password: Sentinel.PasswordView, # your password view (optional)
-    session: Sentinel.SessionView, # your session view (optional)
-    shared: Sentinel.SharedView, # your shared view (optional)
-    user: Sentinel.UserView # your user view (optional)
+    # your email view (optional)
+    email: Sentinel.EmailView,
+    # your error view (optional)
+    error: Sentinel.ErrorView,
+    # your password view (optional)
+    password: Sentinel.PasswordView,
+    # your session view (optional)
+    session: Sentinel.SessionView,
+    # your shared view (optional)
+    shared: Sentinel.SharedView,
+    # your user view (optional)
+    user: Sentinel.UserView
   },
-  router: Sentinel.TestRouter, #FIXME your router
-  endpoint: Sentinel.Endpoint, #FIXME your endpoint
+  # FIXME your router
+  router: Sentinel.TestRouter,
+  # FIXME your endpoint
+  endpoint: Sentinel.Endpoint,
   invitable: true,
-  invitation_registration_url: "http://localhost:4000", # for api usage only
+  # for api usage only
+  invitation_registration_url: "http://localhost:4000",
   confirmable: :optional,
-  confirmable_redirect_url: "http://localhost:4000", # for api usage only
-  password_reset_url: "http://localhost:4000", # for api usage only
-  send_emails: true
+  # for api usage only
+  confirmable_redirect_url: "http://localhost:4000",
+  # for api usage only
+  password_reset_url: "http://localhost:4000",
+  send_emails: true,
+  permissions: %{}
 
-config :guardian_db, GuardianDb,
-  repo: Sentinel.TestRepo #FIXME your repo
+config :guardian, Guardian.DB,
+  # FIXME your repo
+  repo: Sentinel.TestRepo
 
-config :sentinel, Sentinel.Mailer,
-  adapter: Bamboo.TestAdapter
+config :sentinel, Sentinel.Mailer, adapter: Bamboo.TestAdapter
 
 config :ueberauth, Ueberauth,
   providers: [
@@ -64,7 +83,7 @@ config :ueberauth, Ueberauth,
       Ueberauth.Strategy.Identity,
       [
         param_nesting: "user",
-        callback_methods: ["POST"],
+        callback_methods: ["POST"]
       ]
     },
     github: {

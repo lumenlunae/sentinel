@@ -10,8 +10,10 @@ use Mix.Config
 
 # Sample configuration:
 #
-config :logger, :console,
-  level: :info
+config :logger, :console, level: :info
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
 
 config :comeonin, :bcrypt_log_rounds, 4
 
@@ -19,20 +21,21 @@ config :sentinel,
   crypto_provider: Comeonin.Bcrypt,
   auth_handler: Sentinel.AuthHandler
 
-config :guardian, Guardian,
-  allowed_algos: ["HS512"], # optional
-  verify_module: Guardian.JWT,  # optional
-  ttl: { 30, :days },
-  verify_issuer: true, # optional
+config :sentinel, Sentinel.Guardian,
+  # optional
+  allowed_algos: ["HS512"],
+  # optional
+  verify_module: Guardian.JWT,
+  ttl: {30, :days},
+  # optional
+  verify_issuer: true,
   serializer: Sentinel.GuardianSerializer,
-  hooks: GuardianDb,
+  hooks: Guardian.DB,
   permissions: Application.get_env(:sentinel, :permissions)
 
-config :guardian_db, GuardianDb,
-  repo: Application.get_env(:sentinel, :repo)
+config :guardian, Guardian.DB, repo: Application.get_env(:sentinel, :repo)
 
-config :sentinel, Sentinel.Mailer,
-  adapter: Bamboo.LocalAdapter
+config :sentinel, Sentinel.Mailer, adapter: Bamboo.LocalAdapter
 
 config :bamboo, :refute_timeout, 10
 
@@ -45,7 +48,7 @@ config :ueberauth, Ueberauth,
         callback_methods: ["POST"],
         uid_field: :email
       ]
-    },
+    }
   ]
 
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

@@ -2,9 +2,10 @@ defmodule Sentinel.ConnCase do
   alias Sentinel.TestRepo
 
   use ExUnit.CaseTemplate
+
   @default_opts [
     store: :cookie,
-    key: "foobar",
+    key: "default",
     encryption_salt: "encrypted cookie salt",
     signing_salt: "signing salt"
   ]
@@ -36,7 +37,7 @@ defmodule Sentinel.ConnCase do
     the_conn.secret_key_base
     |> put_in(@secret)
     |> Plug.Session.call(@signing_opts)
-    |> Plug.Conn.fetch_session
+    |> Plug.Conn.fetch_session()
   end
 
   def run_plug(conn, plug_module) do

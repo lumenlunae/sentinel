@@ -9,7 +9,7 @@ defmodule Sentinel.Controllers.Json.UserController do
 
   def resend_confirmation_instructions(conn, params) do
     Sentinel.Confirm.send_confirmation_instructions(params)
-    json conn, :ok
+    json(conn, :ok)
   end
 
   @doc """
@@ -42,8 +42,11 @@ defmodule Sentinel.Controllers.Json.UserController do
       {:ok, user} ->
         conn
         |> put_status(200)
-        |> render(Config.views.user, "show.json", %{user: user})
-      {:error, changeset} -> Util.send_error(conn, changeset.errors)
+        |> put_view(Config.views().user)
+        |> render("show.json", %{user: user})
+
+      {:error, changeset} ->
+        Util.send_error(conn, changeset.errors)
     end
   end
 end

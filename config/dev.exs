@@ -2,19 +2,21 @@ use Mix.Config
 
 config :logger, level: :warn
 
-config :guardian, Guardian,
-  allowed_algos: ["HS512"], # optional
-  verify_module: Guardian.JWT,  # optional
+config :sentinel, Sentinel.Guardian,
+  # optional
+  allowed_algos: ["HS512"],
+  # optional
+  verify_module: Guardian.JWT,
   issuer: "Sentinel",
-  ttl: { 30, :days },
-  verify_issuer: true, # optional
+  ttl: {30, :days},
+  # optional
+  verify_issuer: true,
   secret_key: "guardian_sekret",
   serializer: Sentinel.GuardianSerializer,
-  hooks: GuardianDb,
+  hooks: Guardian.DB,
   permissions: Application.get_env(:sentinel, :permissions)
 
-config :guardian_db, GuardianDb,
-  repo: Sentinel.TestRepo
+config :guardian, Guardian.DB, repo: Sentinel.TestRepo
 
 config :sentinel,
   app_name: "Test App",
